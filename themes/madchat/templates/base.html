@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="{% block html_lang %}{{ DEFAULT_LANG }}{% endblock %}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ SITENAME }}{% endblock %}</title>
+  {% if SITEDESCRIPTION %}<meta name="description" content="{{ SITEDESCRIPTION }}">{% endif %}
+  <link rel="stylesheet" href="{{ SITEURL }}/theme/css/madchat.css">
+  {% if FEED_ALL_ATOM %}<link rel="alternate" type="application/atom+xml" title="{{ SITENAME }} — Flux Atom" href="{{ SITEURL }}/{{ FEED_ALL_ATOM }}">{% endif %}
+</head>
+<body>
+<div class="container">
+
+  <header class="header">
+    <div class="header__logo">
+      <p class="prompt"><span class="user">{{ AUTHOR|lower }}</span>@<span class="host">appendix</span>:<span class="path">~$</span> <span class="dollar">_</span></p>
+    </div>
+<pre class="ascii-banner" aria-hidden="true">
+ _____ _           __        ___ _       _     _          _                               _ _
+|_   _| |__   ___  \ \      / (_) |_ ___| |__ ( )___     / \   _ __  _ __   ___ _ __   __| (_)_  __
+  | | | '_ \ / _ \  \ \ /\ / /| | __/ __| '_ \|// __|   / _ \ | '_ \| '_ \ / _ \ '_ \ / _` | \ \/ /
+  | | | | | |  __/   \ V  V / | | || (__| | | | \__ \  / ___ \| |_) | |_) |  __/ | | | (_| | |>  <
+  |_| |_| |_|\___|    \_/\_/  |_|\__\___|_| |_| |___/ /_/   \_\ .__/| .__/ \___|_| |_|\__,_|_/_/\_\
+                                                              |_|   |_|
+</pre>
+    <nav class="navigation-menu">
+      <ul class="navigation-menu__inner">
+        {% for name, link in MENUITEMS %}
+        <li><a href="{{ SITEURL }}{{ link }}">{{ name|lower }}</a></li>
+        {% endfor %}
+        {% for cat, _ in categories|sort %}
+        <li><a href="{{ SITEURL }}/{{ cat.url }}">{{ cat|lower }}</a></li>
+        {% endfor %}
+        <li><a href="{{ SITEURL }}/{{ FEED_ALL_ATOM }}">rss</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="posts">
+{% block content %}{% endblock %}
+  </main>
+
+{% if articles_page and articles_page.has_other_pages() %}
+  <div class="pagination">
+    {% if articles_page.has_next() %}<a href="{{ SITEURL }}/{{ articles_next_page.url }}">older posts →</a>{% endif %}
+  </div>
+{% endif %}
+
+  <footer class="footer">
+    <hr>
+    <div class="copyright">
+      © {{ FOOTER_YEAR }} {{ AUTHOR }} — propulsé par <a href="https://getpelican.com">Pelican</a>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

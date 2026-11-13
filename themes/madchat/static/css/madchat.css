@@ -1,0 +1,298 @@
+/* ── thème « terminal » — inspiré du style de blog.himanshuanand.com ──── */
+
+:root {
+  --bg: #222129;
+  --fg: #ffffff;
+  --accent: #ffa86a;
+  --accent-dim: rgba(255, 168, 106, 0.7);
+  --accent-faint: rgba(255, 168, 106, 0.1);
+  --border: rgba(255, 255, 255, 0.1);
+  --mono: "Fira Code", "SF Mono", Monaco, Consolas, "Ubuntu Mono", monospace;
+}
+
+* { box-sizing: border-box; }
+
+html { height: 100%; }
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--mono);
+  font-size: 1rem;
+  line-height: 1.54;
+  letter-spacing: -0.02em;
+  background-color: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; }
+a:hover { color: var(--accent); }
+
+.container {
+  display: flex;
+  flex-direction: column;
+  padding: 40px;
+  max-width: 864px;
+  min-height: 100vh;
+  margin: 0 auto;
+  border-right: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+}
+@media (max-width: 684px) {
+  .container { padding: 20px; }
+
+  /* lecture confortable sur petit écran */
+  body { font-size: 1.05rem; letter-spacing: normal; }
+  .prompt { font-size: 1rem; }
+  h2.post-title { font-size: 1.05rem; }
+  h1.post-title, h1, h2, h3 { font-size: 1.2rem; }
+
+  /* listes numérotées : le numéro généré ne sort pas dans la marge */
+  ol li:before { position: static; margin-right: 8px; }
+  .post ul li:not(:empty):before { left: -18px; }
+
+  blockquote { padding: 15px; }
+  blockquote p:first-of-type:before { left: -15px; }
+
+  .header__logo { flex-direction: column; align-items: flex-start; gap: 8px; }
+}
+
+/* ── en-tête : prompt terminal + petite bannière ASCII ──────────────── */
+
+.header { margin-bottom: 30px; }
+
+.header__logo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.header__logo a {
+  text-decoration: none;
+  font-weight: 800;
+}
+
+/* invite de commande, ex. enigmawitch@appendix:~$ — plus grande que les
+   titres d'articles : c'est ELLE le titre du site */
+.prompt {
+  color: var(--accent);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+}
+.prompt .user { color: var(--fg); }
+.prompt .dollar { font-weight: 800; }
+
+pre.ascii-banner {
+  color: var(--accent);
+  /* ~101 caractères par ligne : la taille suit la largeur de l'écran pour
+     que le titre ne soit jamais coupé (cap à 0.5rem sur grand écran). */
+  /* !important : la règle `pre` des blocs de code (0.95rem !important)
+     écraserait cette taille et ferait déborder la bannière. */
+  /* cap à 0.72rem sur grand écran (101 caractères × 0.6em × 11.5px ≈ 700px,
+     juste sous la largeur utile du conteneur de 784px). */
+  font-size: min(0.72rem, calc(100vw / 72)) !important;
+  line-height: 1.1;
+  margin: 10px 0 0;
+  background: none;
+  border: none;
+  padding: 0;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* ── navigation ─────────────────────────────────────────────────────── */
+
+.navigation-menu { margin: 20px 1px; }
+.navigation-menu__inner { font-size: 1.05rem; }
+.navigation-menu__inner {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.navigation-menu__inner li { margin-right: 20px; margin-bottom: 10px; white-space: nowrap; }
+.navigation-menu__inner a { text-decoration: none; color: var(--accent-dim); }
+.navigation-menu__inner a:hover { color: var(--accent); }
+
+hr {
+  width: 100%;
+  border: none;
+  background: var(--border);
+  height: 1px;
+  margin: 40px 0;
+}
+
+/* ── liste d'articles ───────────────────────────────────────────────── */
+
+.posts { width: 100%; }
+
+.post {
+  width: 100%;
+  text-align: left;
+  margin: 20px auto;
+  padding: 20px 0;
+}
+.post:not(:last-of-type) { border-bottom: 1px solid var(--border); }
+
+/* titre d'un article dans la LISTE (accueil) : discret, sous le titre du site */
+h2.post-title {
+  font-size: 1.1rem;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+/* titre d'un article SEUL (page article) : plus affirmé */
+h1.post-title { font-size: 1.4rem; }
+
+.post-title {
+  position: relative;
+  color: var(--accent);
+  margin: 0 0 15px;
+  padding-bottom: 15px;
+  border-bottom: 3px dotted var(--accent);
+  line-height: 1.3;
+}
+.post-title:after {
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  display: block;
+  width: 100%;
+  border-bottom: 3px dotted var(--accent);
+}
+.post-title a { text-decoration: none; }
+
+.post-meta {
+  font-size: 1rem;
+  margin-bottom: 10px;
+  color: var(--accent-dim);
+}
+
+.post-tags { display: block; margin-bottom: 20px; font-size: 1rem; opacity: 0.5; }
+.post-tags a { text-decoration: none; }
+.post-tags a:hover { color: var(--accent); }
+
+.post-content { margin-top: 10px; }
+
+.read-more {
+  display: inline-flex;
+  border: none;
+  color: var(--accent);
+  text-decoration: none;
+  padding: 0;
+  margin: 20px 0;
+}
+.read-more:hover { text-decoration: underline; }
+
+/* ── pagination ─────────────────────────────────────────────────────── */
+
+.pagination { margin-top: 50px; text-align: center; }
+.pagination a { text-decoration: none; color: var(--accent); }
+
+/* ── typographie des articles ───────────────────────────────────────── */
+
+h1, h2, h3, h4, h5, h6 { line-height: 1.3; }
+h1:not(:first-child), h2:not(:first-child), h3:not(:first-child) { margin-top: 40px; }
+h1, h2, h3 { font-size: 1.4rem; }
+h4, h5, h6 { font-size: 1.2rem; }
+
+p { margin-bottom: 20px; }
+
+code, kbd {
+  font-family: var(--mono) !important;
+  background: var(--accent-faint);
+  color: var(--accent);
+  padding: 1px 6px;
+  margin: 0 2px;
+  font-size: 0.95rem;
+}
+
+pre {
+  background: transparent !important;
+  padding: 20px 10px;
+  margin: 40px 0;
+  font-size: 0.95rem !important;
+  overflow: auto;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+pre + pre { border-top: 0; margin-top: -40px; }
+pre code { background: none !important; margin: 0; padding: 0; font-size: inherit; border: none; }
+
+/* coloration syntaxique pygments, teinte « terminal orange » */
+.highlight { color: #ccc; }
+.highlight .c, .highlight .cm, .highlight .c1 { color: rgba(255, 255, 255, 0.35); } /* commentaires */
+.highlight .k, .highlight .kn, .highlight .ow { color: var(--accent); }              /* mots-clés */
+.highlight .s, .highlight .s1, .highlight .s2, .highlight .sd, .highlight .se { color: #7ec699; } /* chaînes */
+.highlight .nf, .highlight .fm { color: #9a9999; }                                    /* fonctions */
+.highlight .mi, .highlight .mf { color: #f8c555; }                                    /* nombres */
+.highlight .o { color: #ccc; }
+
+blockquote {
+  border-top: 1px solid var(--accent);
+  border-bottom: 1px solid var(--accent);
+  margin: 40px 0;
+  padding: 25px;
+}
+blockquote p { position: relative; }
+blockquote p:first-of-type:before {
+  content: ">";
+  display: block;
+  position: absolute;
+  left: -25px;
+  color: var(--accent);
+}
+
+/* tableaux : défilement horizontal sur mobile plutôt que débordement */
+table {
+  table-layout: auto;
+  border-collapse: collapse;
+  width: 100%;
+  margin: 40px 0;
+  display: block;
+  overflow-x: auto;
+}
+table, th, td { border: 1px dashed var(--accent); padding: 10px; }
+th { color: var(--accent); }
+
+ul, ol { margin-left: 22px; padding: 0; }
+ul li, ol li { position: relative; }
+
+.post ul { list-style: none; }
+.post ul li:not(:empty):before {
+  content: "-";
+  position: absolute;
+  left: -20px;
+  color: var(--accent);
+}
+
+ol { list-style: none; counter-reset: li; }
+ol li { counter-increment: li; }
+ol li:before {
+  content: counter(li);
+  position: absolute;
+  right: calc(100% + 10px);
+  color: var(--accent);
+  display: inline-block;
+  text-align: right;
+}
+
+img { display: block; max-width: 100%; }
+figure { display: table; max-width: 100%; margin: 25px 0; }
+figure figcaption {
+  font-size: 14px;
+  padding: 5px 10px;
+  margin-top: 5px;
+  background: var(--accent);
+  color: var(--bg);
+}
+
+mark { background: var(--accent); color: var(--bg); }
+
+/* ── footer ─────────────────────────────────────────────────────────── */
+
+.footer { padding: 40px 0 20px; flex-grow: 0; opacity: 0.5; font-size: 0.9rem; }
+.footer a { color: inherit; }
+.footer .copyright { text-align: center; }

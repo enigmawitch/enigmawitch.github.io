@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="240" viewBox="0 0 640 240">
+  <rect width="640" height="240" fill="#222129"/>
+  <rect x="4" y="4" width="632" height="232" fill="none" stroke="#ffa86a" stroke-dasharray="6 4"/>
+  <text x="24" y="46" fill="#ffa86a" font-family="Fira Code, Courier New, monospace" font-size="16">enigmawitch@appendix:~$ nmap -sV --top-ports 100 cible.lab</text>
+  <text x="24" y="76" fill="rgba(255,255,255,0.5)" font-family="Fira Code, Courier New, monospace" font-size="14">Starting Nmap 7.95 ( https://nmap.org )</text>
+  <text x="24" y="104" fill="#ffffff" font-family="Fira Code, Courier New, monospace" font-size="14">22/tcp   open  ssh      OpenSSH 9.6</text>
+  <text x="24" y="128" fill="#ffffff" font-family="Fira Code, Courier New, monospace" font-size="14">80/tcp   open  http     nginx 1.27</text>
+  <text x="24" y="152" fill="#ffffff" font-family="Fira Code, Courier New, monospace" font-size="14">443/tcp  open  ssl/http nginx 1.27</text>
+  <text x="24" y="188" fill="#ffa86a" font-family="Fira Code, Courier New, monospace" font-size="14">Nmap done: 1 IP address (1 host up) scanned in 3.2s</text>
+  <rect x="600" y="210" width="10" height="14" fill="#ffa86a">
+    <animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite"/>
+  </rect>
+</svg>
