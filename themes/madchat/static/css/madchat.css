@@ -1,7 +1,7 @@
 /* ── thème « terminal » — inspiré du style de blog.himanshuanand.com ──── */
 
 :root {
-  --bg: #222129;
+  --bg: #000000;
   --fg: #ffffff;
   --accent: #ffa86a;
   --accent-dim: rgba(255, 168, 106, 0.7);
