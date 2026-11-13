@@ -22,6 +22,9 @@ jobs:
 
       - uses: actions/configure-pages@v5
         id: pages
+        with:
+          # active Pages automatiquement au premier déploiement
+          enablement: true
 
       - uses: actions/setup-python@v5
         with:
