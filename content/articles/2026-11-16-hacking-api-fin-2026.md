@@ -284,3 +284,9 @@ solidement fermée. La nouvelle couche machine-à-machine — agents, serveurs
 d'outils, webhooks — réunit les vulnérabilités anciennes sur des flux plus
 difficiles à superviser, avec un invariant rassurant pour la chasseuse de
 vulnérabilités : c'est toujours l'autorisation qui cède en premier.
+
+---
+
+[![Logo de l'OWASP — Open Worldwide Application Security Project]({static}/images/owasp-logo.svg)](https://owasp.org/projects/api-security-project "Projet API Security de l'OWASP")
+
+**Pour aller plus loin** : le [projet API Security de l'OWASP](https://owasp.org/projects/api-security-project) publie en accès libre le Top 10 des risques de sécurité des API, ainsi que des guides de test dédiés.
