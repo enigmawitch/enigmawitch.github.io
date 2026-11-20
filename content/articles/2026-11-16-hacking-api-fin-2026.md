@@ -1,9 +1,9 @@
 Title: Hacking d'API en fin 2026 — cartographier, casser l'autorisation, prouver
 Date: 2026-11-16 10:00
 Category: web
-Tags: api, bug-bounty, autorisation, méthodologie
+Tags: api, bug-bounty, autorisation, graphql, méthodologie
 Slug: hacking-api-fin-2026
-Summary: Méthodologie offensive contre les API JSON en 2026 : reconstruction de l'inventaire de routes, failles d'autorisation (BOLA, BFLA, mass assignment), jetons et parsing différentiel HTTP/2, et nouvelle surface machine-à-machine — avec, en fil rouge, la discipline de la preuve minimale.
+Summary: Méthodologie offensive contre les API JSON en 2026 : reconstruction de l'inventaire de routes, failles d'autorisation et de logique métier (BOLA, BFLA, mass assignment, race conditions), jetons et parsing différentiel HTTP/2, et nouvelle surface machine-à-machine — avec, en fil rouge, la discipline de la preuve minimale.
 
 ***Avertissement.** Ces techniques ne se pratiquent que sur des cibles pour
 lesquelles une autorisation explicite existe : programme de bug bounty dans le
@@ -64,11 +64,26 @@ absentes de la documentation officielle : points de terminaison
 d'administration, routes de diagnostic, fonctions internes que le client
 n'appelle plus mais que le serveur sert toujours.
 
+**Les archives et les traces publiques.** La surface d'hier demeure
+accessoire : les archives publiques du web conservent des versions antérieures
+des applications — et leurs appels d'API disparus, dont il suffit de tester la
+survie sur l'origine actuelle. Les dépôts de code publics recèlent pour leur
+part des fichiers de configuration égarés, et l'inférence reste la méthode la
+plus sous-estimée : nommer les routes comme le ferait la développeuse
+(`/api/v2/internal/users`, `/api/admin/deleteUser`, `/api/dev/…`), puis sonder
+les paramètres de diagnostic (`?debug=`, `?beta=`, `?admin=`) et les en-têtes
+équivalents. Les points de terminaison internes existent parce que des routes
+de test ou d'administration survivent à la mise en production sans être liées
+à la moindre interface.
+
 **GraphQL, l'inventaire servi sur un plateau.** Si l'API expose `/graphql`,
 l'introspection livre le schéma complet. Lorsqu'elle est désactivée, restent
 les messages d'erreur : nombre d'implémentations répondent aux noms de champs
 proches par un « Did you mean…? », qui transforme la découverte du schéma en
-oracle d'énumération, caractère par caractère.
+oracle d'énumération, caractère par caractère. Autre angle, documenté dans des
+rapports publics : le simple préfixe `__schema` accolé à une opération privée
+a suffi, dans des implémentations réelles, à en court-circuiter
+l'authentification.
 
 **L'oracle 405.** Pour confirmer l'existence d'une route pressentie en
 l'absence de documentation, les méthodes HTTP servent de sonde : une route
@@ -142,7 +157,10 @@ simple défaut d'affichage.
 
 ### Au niveau des champs : expositions et assignations de masse
 
-L'autorisation se joue aussi propriété par propriété. Deux pièges récurrents :
+L'autorisation se joue aussi propriété par propriété — en GraphQL,
+littéralement champ par champ, chaque résolveur étant une fonction distincte :
+une requête racine contrôlée ne dit rien des champs qu'elle retourne. Deux
+pièges récurrents :
 
 - **L'exposition excessive** : `GET /api/v1/users/42` renvoie l'objet complet
   côté serveur (`{
@@ -163,6 +181,27 @@ Si `plan` et `is_verified` existent sur le modèle et ne figurent pas sur une
 liste blanche, ils sont modifiés. Les noms de champs à tenter se trouvent dans
 les bundles et les schémas des spécifications : toute propriété que l'objet
 possède et que le client n'envoie jamais est une candidate.
+
+### Logique métier : séquences et concurrence
+
+Toute validation d'autorisation, même correctement écrite, peut céder quand
+les requêtes arrivent ensemble ou dans le désordre. Les courses de concurrence
+(race conditions) en sont la déclinaison la plus rentable : un solde lu puis
+débité sans verrou laisse passer deux transferts simultanés de la même
+provision ; une carte cadeau dont la requête de rachat est dupliquée et
+envoyée en rafale s'est, dans des cas réels, retrouvée créditée plusieurs
+fois. La méthode : recenser les flux à effet non réversible — payer,
+transférer, racheter, valider — puis rejouer la requête décisive en plusieurs
+exemplaires parfaitement simultanés, en retenant le dernier paquet de chaque
+requête pour les libérer au même instant.
+
+Apparentée, l'exploitation des flux métier sensibles ne casse aucun contrôle
+technique : elle abuse d'une fonction légitime à une échelle ou dans un ordre
+que l'organisation n'a pas prévus — stock limité racheté par script, bonus de
+parrainage cultivés en série, catalogue aspiré par le point de terminaison de
+recommandation. La question à se poser devant chaque flux : « que se
+passe-t-il si je l'exécute dix mille fois, ou hors séquence ? » — aucun
+scanner ne la pose à la place de la testeuse.
 
 ## 3. Jetons, sessions et parsing différentiel
 
@@ -245,11 +284,17 @@ redirection `302` vers une cible interne, notations d'adresses exotiques
 cible finale à tester demeure l'adresse link-local `169.254.169.254` — le
 service de métadonnées d'instance, qui livre parfois des identifiants.
 
-Enfin, la consommation non restreinte de ressources — absence de limitation
-de débit, pagination acceptant `?limit=1000000`, requêtes GraphQL de profondeur
-arbitraire, points de terminaison de calcul coûteux — reste systématiquement
-observable sur les API d'agents ; ces dernières étant facturées à l'usage, le
-coût devient l'impact.
+Enfin, la consommation non restreinte de ressources reste systématiquement
+observable. Outre l'absence de limitation de débit et la pagination acceptant
+`?limit=1000000`, deux mécaniques propres à GraphQL méritent une sonde
+systématique : l'envoi en lot (batching), qui loge des centaines d'opérations
+— tentatives de connexion ou de code OTP comprises — dans un seul appel HTTP
+et neutralise ainsi les compteurs de débit ; et l'aliasing de mutations, où
+la même mutation, répétée sous plusieurs alias dans une requête unique,
+s'exécute autant de fois — dans un cas réel, chaque alias d'une mutation
+coûteuse ajoutait environ huit secondes de traitement serveur, une poignée de
+requêtes suffisant à dégrader le service. Sur les API d'agents, facturées à
+l'usage, le coût devient lui-même l'impact.
 
 ## 5. L'art de la preuve
 
@@ -279,8 +324,8 @@ tient à la preuve, et la discipline s'énonce simplement :
 Attaquer une API, fin 2026, reste un exercice de comptabilité : dresser
 l'inventaire réel des routes — celui que l'organisation ne tient pas —, y
 appliquer une matrice d'autorisation systématique (objet × champ × méthode ×
-rôle), puis remonter d'un étage — jetons, parsing — lorsque la porte est
-solidement fermée. La nouvelle couche machine-à-machine — agents, serveurs
+rôle), éprouver les flux sensibles sous concurrence, puis remonter d'un étage
+— jetons, parsing — lorsque la porte est solidement fermée. La nouvelle couche machine-à-machine — agents, serveurs
 d'outils, webhooks — réunit les vulnérabilités anciennes sur des flux plus
 difficiles à superviser, avec un invariant rassurant pour la chasseuse de
 vulnérabilités : c'est toujours l'autorisation qui cède en premier.
