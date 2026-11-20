@@ -55,6 +55,32 @@ GitHub Pages à chaque push sur `main`.
    un sous-chemin — ajuster `SITEURL` dans `publishconf.py` (ex. `/blog-cyber`)
    ou via la variable d'environnement `SITEURL`.
 
+### Publier une mise à jour
+
+Chaque push sur `main` déclenche la reconstruction et la publication du site
+par GitHub Actions (une à deux minutes). Le flux usuel :
+
+```bash
+cd "/Volumes/AlicePro/ZCodeFolder/Site web/blog-cyber"
+
+# 1. Charger la clé SSH si le push est refusé (Permission denied) :
+ssh-add --apple-use-keychain ~/.ssh/github-enigma
+
+# 2. Committer les changements :
+git add content/
+git commit -m "article: mon message"
+
+# 3. Pousser → le site se déploie tout seul :
+git push origin main
+```
+
+Vérifications utiles avant de pousser :
+
+```bash
+git status              # ce qui sera committé
+git log --oneline -3    # les derniers commits
+```
+
 ## Structure
 
 ```
